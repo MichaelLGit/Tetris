@@ -1,0 +1,41 @@
+#game-canvas{
+    
+}
+
+.block{
+    width: 32px;
+    height: 32px;
+    margin: 1px;
+}
+
+.row{
+    display: flex;
+}
+
+.empty{
+    background-color: lightgray;
+}
+
+.lpiece{
+    background-color: blueviolet;
+}
+
+.tpiece{
+    background-color: lightcoral;
+}
+
+.spiece{
+    background-color: aquamarine;
+}
+
+.zpiece{
+    background-color: darkslategrey;
+}
+
+.longpiece{
+    background-color: aqua;
+}
+
+.locked{
+    background-color: black;
+}
