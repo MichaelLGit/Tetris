@@ -7,22 +7,18 @@
         <!-- <script src="./libs/socket.io/dist/socket.io.js"></script> -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script type="module" src="./script.js"></script>
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="./style.css">
     </head>
 
     <script>
         
     </script>
 
-    <body>
-        <canvas id="game-canvas">
-        </canvas>
-        <h3 id="roomcode"></h3>
-        <button onclick="CreateAndJoinRoom()">Create Room</button>
-        <input id="joinroominput" type="number" onkeyup="JoinRoom()"></input>
-        <button id="singlegameBtn" >
-            Start Singleplayer Game
-        </button>
+    <body >
+        <div id="canvas-container">
+            <canvas id="game-canvas">
+            </canvas>
+        </div>
     </body>
 
 </html>

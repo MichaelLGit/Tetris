@@ -7,7 +7,7 @@ let gameboard;
 //{elems: [{elems: [{elems: []}], direction: "horizontal"}], direction: "vertical"}
 function OnLoad() {
     gameboard = new Engine.GameView();
-    gameboard.debugmode = true;
+    // gameboard.debugmode = true;
     
     let startScene = new StartScreen('start');
     startScene.setGameview(gameboard);
@@ -16,12 +16,6 @@ function OnLoad() {
     let mainscene = new BaseGameScene('base');
     mainscene.setGameview(gameboard);
     mainscene.AddScene();
-
-    let sBtn = document.getElementById("singlegameBtn");
-    sBtn.addEventListener('click', (e) => {
-        console.log('clicked start');
-        //mainscene.StartGame()
-    })
 
     gameboard.LoopScene();
 }

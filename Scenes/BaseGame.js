@@ -6,8 +6,9 @@ class Block extends Container {
 
     constructor(gameview = Engine.GameView, style = { size: { x: 32, y: 32 }, margin: { t: 1, r: 1, b: 1, l: 1 }, bgcolor: "#ddd" }, elems = [], direction = 'vertical') {
         super(gameview, style, elems, direction);
-        style.moveable = false;
-        style.playpiece = false;
+        this.style.moveable = false;
+        this.style.playpiece = false;
+        this.activestyle.bgcolor = Engine.MLColor.darken(this.style.bgcolor, 30);
         this.addEvent('mouseup', () => { console.log('up') })
         this.addEvent('mousedown', () => { console.log('down') })
     }
@@ -31,6 +32,8 @@ class Piece {
         b.style.playpiece = true;
         b.style.moveable = true;
         b.style.bgcolor = this.piece.bgcolor;
+        b.activestyle.bgcolor = Engine.MLColor.darken(b.style.bgcolor, 14);
+
         this.setPositive(b);
         this.setpiececalled = true;
     }
@@ -127,6 +130,8 @@ export class BaseGameScene extends Engine.Scene {
         let gamecontainer = new Container(this.gameview);
         for (let y = 0; y < this.lengthboard; y++) {
             let horizontalcontainer = new Container(this.gameview, null, [], 'horizontal');
+            horizontalcontainer.style.margin.t = 0;
+            horizontalcontainer.style.margin.b = 0;
             for (let x = 0; x < this.widthboard; x++) {
                 horizontalcontainer.elems.push(new Block(this.gameview));
             }
@@ -135,8 +140,9 @@ export class BaseGameScene extends Engine.Scene {
         
         let buttons = new Container(this.gameview);
         let startbtn = new Button(this.gameview);
-        startbtn.style.size = {x: 100 ,y: 100}
-        startbtn.style.bgcolor = '#b35'
+        startbtn.style.size = {x: 100 ,y: 100};
+        startbtn.style.bgcolor = '#b35';
+        startbtn.activestyle.bgcolor =  Engine.MLColor.darken(startbtn.style.bgcolor, 14);
         
         buttons.elems.push(startbtn);
         
@@ -146,16 +152,19 @@ export class BaseGameScene extends Engine.Scene {
 
         this.guilayer.elems.push(maincontainer);
 
-        startbtn.addEvent('fullclick', () => { console.log('start game'); }, this)
+        startbtn.addEventHandler(this, 'mousedown',(e, args) => {
+            startbtn.active = true;
+        });
+        startbtn.addEventHandler(this, 'mouseup',(e, args) => { 
+            if(startbtn.isInside(e.clientX, e.clientY) && startbtn.active == true){
+                startbtn.active = false;
+                this.StartGame();
+            }
+        });
 
         //Check 
-        this.gameview.eventsystem.OnKeyDown(" ", this.logScene, this);
-        this.gameview.eventsystem.OnKeyDown("ArrowRight", this.MoveRight, this);
-        this.gameview.eventsystem.OnKeyDown("ArrowLeft", this.MoveLeft, this);
-        this.gameview.eventsystem.OnKeyDown("ArrowDown", this.MoveDown, this);
-        this.gameview.eventsystem.OnKeyDown("ArrowUp", this.Drop, this)
-        this.gameview.eventsystem.OnKeyDown("x", this.RotateRight, this);
-        this.gameview.eventsystem.OnKeyDown("z", this.RotateLeft, this);
+        this.addEventHandler("keydown", this.KeyDown, this)
+
 
 
         this.onStart = () => {
@@ -176,7 +185,7 @@ export class BaseGameScene extends Engine.Scene {
                         let piece = new Piece(this.gameview, { x: (this.widthboard / 2) - 1, y: -1 }, this.randomness)
                         piece.setMoveable(true);
                         piece.setPlaypiece(true);
-                        this.FallingPieces.push(piece);
+                        this.FallingPieces.push({piece: piece, control: undefined});
                         this.timetonextblock.currentiteration = 0;
                     }
                 }
@@ -187,6 +196,32 @@ export class BaseGameScene extends Engine.Scene {
         }
 
         this.gameview.render();
+    }
+
+    KeyDown(e){
+        switch(e.key){
+            case ' ':
+                this.logScene(e);
+                break;
+            case 'ArrowRight':
+                this.MoveRight(e);
+                break;
+            case 'ArrowLeft':
+                this.MoveLeft(e);
+                break;
+            case 'ArrowDown':
+                this.MoveDown(e);
+                break;
+            case 'ArrowUp':
+                this.Drop(e);
+                break;
+            case 'x':
+                this.RotateRight(e);
+                break;
+            case 'z':
+                this.RotateLeft(e);
+                break;
+        }
     }
 
     StartGame(){
@@ -219,7 +254,7 @@ export class BaseGameScene extends Engine.Scene {
     }
 
     MoveLeft(e) {
-        let piece = this.FallingPieces[0];
+        let piece = this.FallingPieces[0].piece;
         if (piece == undefined) { return };
         let p = piece.getSelected();
         let moveleft = true;
@@ -249,7 +284,7 @@ export class BaseGameScene extends Engine.Scene {
     }
 
     MoveRight(e) {
-        let piece = this.FallingPieces[0];
+        let piece = this.FallingPieces[0].piece;
         if (piece == undefined) { return };
         let p = piece.getSelected();
         let moveright = true;
@@ -279,7 +314,7 @@ export class BaseGameScene extends Engine.Scene {
     }
 
     MoveDown() {
-        let piece = this.FallingPieces[0];
+        let piece = this.FallingPieces[0].piece;
         if (piece == undefined || null) { return }
         piece.hasMovedManually = true;
         this.CleanField();
@@ -291,7 +326,7 @@ export class BaseGameScene extends Engine.Scene {
 
     MoveDownAll(sincelast) {
         for (let i = this.FallingPieces.length - 1; i >= 0; i--) {
-            let piece = this.FallingPieces[i];
+            let piece = this.FallingPieces[i].piece;
             if (piece == undefined || null) { return }
             if (piece.hasMovedManually == true) {
                 piece.hasMovedManually = false;
@@ -308,7 +343,7 @@ export class BaseGameScene extends Engine.Scene {
 
     RotateRight() {
         console.log('rotate R')
-        let piece = this.FallingPieces[0];
+        let piece = this.FallingPieces[0].piece;
         let testpiece = piece.checkRight();
         for (let y = testpiece.length - 1; y >= 0; y--) {
             for (let x = 0; x < testpiece[y].length; x++) {
@@ -329,7 +364,7 @@ export class BaseGameScene extends Engine.Scene {
 
     RotateLeft() {
         console.log('rotate L')
-        let piece = this.FallingPieces[0];
+        let piece = this.FallingPieces[0].piece;
         let testpiece = piece.checkLeft();
         for (let y = testpiece.length - 1; y >= 0; y--) {
             for (let x = 0; x < testpiece[y].length; x++) {
@@ -365,13 +400,15 @@ export class BaseGameScene extends Engine.Scene {
 
     PlacePieces() {
         for (let i = 0; i < this.FallingPieces.length; i++) {
-            let piece = this.FallingPieces[i];
+            let piece = this.FallingPieces[i].piece;
             for (let y = piece.getSelected().length - 1; y >= 0; y--) {
                 for (let x = 0; x < piece.getSelected()[y].length; x++) {
 
                     let p = piece.getSelected()[y][x];
+                    let b = new Block(this.gameview);
+                    b.style = {...p.style};
                     if (p != 0 && (piece.position.y + y) - (piece.getSelected().length - 1) >= 0) {
-                        this.guilayer.elems[0].elems[0].elems[(piece.position.y + y) - (piece.getSelected().length - 1)].elems[piece.position.x + x] = piece.getSelected()[y][x];
+                        this.guilayer.elems[0].elems[0].elems[(piece.position.y + y) - (piece.getSelected().length - 1)].elems[piece.position.x + x] = b;
                     }
 
                 }
@@ -425,7 +462,7 @@ export class BaseGameScene extends Engine.Scene {
 
     LockPiece(num) {
         console.log('lock');
-        let piece = this.FallingPieces[num];
+        let piece = this.FallingPieces[num].piece;
         piece.setMoveable(false);
 
         for (let y = piece.getSelected().length - 1; y >= 0; y--) {
@@ -438,8 +475,7 @@ export class BaseGameScene extends Engine.Scene {
                 }
             }
         }
-        let checkdata = { posy: this.FallingPieces[num].position.y, height: piece.getSelected().length };
-        this.FallingPieces[num] = null
+        let checkdata = { posy: this.FallingPieces[num].piece.position.y, height: piece.getSelected().length };
         this.FallingPieces.splice(num, 1);
         this.CheckLines(checkdata.posy, checkdata.height);
         this.timetonextblock.currentiteration = this.timetonextblock.interval;
@@ -452,8 +488,8 @@ export class BaseGameScene extends Engine.Scene {
             let row = this.guilayer.elems[0].elems[0].elems[(posy + y) - height]
             if (row == undefined) { continue }
             addrow = true;
-            for (let x = 0; x < row.elems[0].elems.length; x++) {
-                let block = this.guilayer.elems[0].elems[0].elems[(posy + y) - height].elems[x]
+            for (let x = 0; x < row.elems.length; x++) {
+                let block = row.elems[x]
                 if (block.style.playpiece != true) {
                     addrow = false;
                     break;
@@ -471,7 +507,7 @@ export class BaseGameScene extends Engine.Scene {
         for (let i = 0; i < indices.length; i++) {
             let row = this.guilayer.elems[0].elems[0].elems[indices[i]];
             for (let x = 0; x < row.elems[0].elems.length; x++) {
-                row.elems[0].elems[x] = new Block(this.gameview);
+                row.elems[x] = new Block(this.gameview);
             }
         }
 
@@ -488,15 +524,19 @@ export class BaseGameScene extends Engine.Scene {
             let newrow;
             if (row == undefined) {
                 newrow = new Container(this.gameview, null, [], 'horizontal');
+                newrow.style.margin.t = 0;
+                newrow.style.margin.b = 0;
                 for (let x = 0; x < this.widthboard; x++) {
-                    newrow.elems[0].elems.push(new Block(this.gameview));
+                    newrow.elems.push(new Block(this.gameview));
                 }
             } else {
                 newrow = new Container(this.gameview, null, [], 'horizontal');
+                newrow.style.margin.t = 0;
+                newrow.style.margin.b = 0;
                 for (let x = 0; x < this.widthboard; x++) {
                     let newblock = new Block(this.gameview);
-                    newblock.style = { ...row.elems[0].elems[x].style };
-                    newrow.elems[0].elems.push(newblock);
+                    newblock.style = { ...row.elems[x].style };
+                    newrow.elems.push(newblock);
                 }
             }
             this.guilayer.elems[0].elems[0].elems[(y - 1) + amount] = newrow;
