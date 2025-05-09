@@ -146,7 +146,17 @@ export class Button extends Container {
         super(gameview, style, elems, direction);
     }
 
+    render(colldata) {
+        super.render(colldata);
+        let realfont = this.style.fontSize + 'px ' + this.style.fontStyle;
+        let gctx = this.gameview.ctx;
+        gctx.font = realfont;
+        gctx.fillStyle = this.style.color;
+        gctx.fillText(this.style.text,
+            ((this.gameview.style.position.x + this.style.position.x) + this.style.margin.l),
+            ((this.gameview.style.position.y + this.style.position.y) + this.style.margin.t) + (this.style.size.y - this.style.fontSize / 4));
 
+    }
 
 }
 
@@ -157,7 +167,6 @@ export class Input extends Container {
     constructor(gameview, style, elems = [], direction = 'vertical') {
         super(gameview, style, elems, direction)
         this.style.editable = true;
-
 
     }
 

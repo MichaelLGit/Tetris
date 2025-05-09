@@ -29,6 +29,7 @@ export class StartScreen extends Scene {
         startgame.style.size = { x: this.gameview.style.size.x / 1.1, y: this.gameview.style.size.y / 5 };
         startgame.style.margin = { ...marg };
         startgame.style.bgcolor = "#c9a";
+        startgame.style.fontSize = 150;
         startgame.activestyle.bgcolor = MLColor.darken(startgame.style.bgcolor, 14);
         startgame.addEventHandler(this, 'mousedown', (e, args) => {
             if (startgame.isInside(e.clientX, e.clientY)) {

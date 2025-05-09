@@ -277,7 +277,6 @@ export class BaseGameScene extends Engine.Scene {
             }
         }
         if (moveleft == true) {
-            this.CleanField();
             piece.position.x -= 1;
         }
 
@@ -307,7 +306,6 @@ export class BaseGameScene extends Engine.Scene {
             }
         }
         if (moveright == true) {
-            this.CleanField();
             piece.position.x += 1;
         }
 
@@ -317,7 +315,7 @@ export class BaseGameScene extends Engine.Scene {
         let piece = this.FallingPieces[0].piece;
         if (piece == undefined || null) { return }
         piece.hasMovedManually = true;
-        this.CleanField();
+        //this.CleanField();
         let lockpiece = this.CheckAndMoveDown(piece);
         if (lockpiece != null) {
             this.LockPiece(0);
