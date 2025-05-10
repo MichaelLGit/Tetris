@@ -62,11 +62,12 @@ export class StartScreen extends Scene {
         })
 
         let roominput = new Input(this.gameview);
+        roominput.style.text = 'RoomInput';
         roominput.style.size = { x: this.gameview.style.size.x / 1.1, y: this.gameview.style.size.y / 5 };
         roominput.style.margin = { ...marg };
         roominput.style.bgcolor = "#77c";
         roominput.activestyle.bgcolor = MLColor.darken(roominput.style.bgcolor, 30)
-        roominput.style.fontSize = 150;
+        roominput.style.fontSize = 100;
         roominput.addBasicEvents(this)
 
         roominput.OnSubmit(this, args => {
@@ -75,11 +76,12 @@ export class StartScreen extends Scene {
         })
 
         let testinput = new Input(this.gameview);
+        testinput.style.text = 'TestInput';
         testinput.style.size = { x: this.gameview.style.size.x / 1.1, y: this.gameview.style.size.y / 5 };
         testinput.style.margin = { ...marg };
         testinput.style.bgcolor = "#ddd";
         testinput.activestyle.bgcolor = MLColor.darken(testinput.style.bgcolor, 30)
-        testinput.style.fontSize = 150;
+        testinput.style.fontSize = 100;
 
         testinput.addEventHandler(this, 'mousedown', (e, args) => {
             if (testinput.isInside(e.clientX, e.clientY)) {

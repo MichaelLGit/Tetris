@@ -382,7 +382,16 @@ export class BaseGameScene extends Engine.Scene {
     }
 
     Drop() {
-
+        let piece = this.FallingPieces[0].piece;
+        if (piece == undefined || null) { return }
+        piece.hasMovedManually = true;
+        //this.CleanField();
+        let lockpiece = this.CheckAndMoveDown(piece);
+        if (lockpiece != null) {
+            this.LockPiece(0);
+        }else{
+            this.Drop()
+        }
     }
 
     CleanField() {
