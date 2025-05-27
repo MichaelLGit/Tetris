@@ -53,6 +53,10 @@ export class ImageObject extends EventObject{
     style = {position: {x:0, y:0}, size: {width: 100, height: 100}}
     img = Image;
 
+    constructor(gameview){
+        super(gameview)
+    }
+
     render() {
         let gctx = this.gameview.ctx;
         gctx.drawImage(this.img, this.style.position.x, this.style.position.y ,this.style.width, this.style.height)
