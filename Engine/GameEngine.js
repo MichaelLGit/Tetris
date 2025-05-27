@@ -230,10 +230,16 @@ export class EventSys {
     elemeventhandlers = [];
     gameview = GameView;
 
+    InputAxis = {
+        positive: {key: "d", justDown: false}, negative: {key: "a", justDown: false},
+        value: 0, minVal: -1, maxVal: 1
+    }
+
     constructor(gameview) {
         this.gameview = gameview;
         this.globalevents.keydownevents = {};
         document.addEventListener('keydown', (e) => this.EmitEvent(e, this));
+        document.addEventListener('keyup', (e) => this.EmitEvent(e, this));
         this.gameview.canvas.addEventListener('mousedown', (e) => this.EmitEvent(e, this));
         this.gameview.canvas.addEventListener('mouseup', (e) => this.EmitEvent(e, this));
         this.gameview.canvas.addEventListener('mousemove', (e) => this.EmitEvent(e, this));

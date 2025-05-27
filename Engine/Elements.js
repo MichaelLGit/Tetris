@@ -35,6 +35,69 @@ export class GuiObject extends EventObject {
     }
 }
 
+export class GameObject extends EventObject {
+
+    children = []
+
+    constructor(gameview, style = null, children = []) {
+        super(gameview)
+        this.children = children;
+
+    }
+
+}
+
+
+export class ImageObject extends EventObject{
+
+    style = {position: {x:0, y:0}, size: {width: 100, height: 100}}
+    img = Image;
+
+    render() {
+        let gctx = this.gameview.ctx;
+        gctx.drawImage(this.img, this.style.position.x, this.style.position.y ,this.style.width, this.style.height)
+
+        if (this.gameview.debugmode === true) {
+            gctx.beginPath();
+            gctx.lineWidth = '1';
+            gctx.strokeStyle = this.style.direction === 'horizontal' ? '#f00' : '#00f';
+            gctx.rect(this.gameview.style.position.x + this.style.position.x + this.style.margin.l,
+                this.gameview.style.position.y + this.style.position.y + this.style.margin.t,
+                this.style.size.x, this.style.size.y)
+            gctx.stroke()
+        }
+    }
+}
+
+export class SpriteComponent extends ImageObject{
+
+
+    constructor(img, style = null){
+        this.img = img;
+        if (style != null){
+            this.style = style;
+        }
+    }
+
+}
+
+export class GameLayer {
+    gameview = GameView;
+    gravity = 9;
+    elems = [];
+    style = { size: { x: 0, y: 0 }, margin: { t: 0, r: 0, b: 0, l: 0 }, display: 'absolute' }
+
+    constructor(gameview, style = null, elems = [], direction = 'vertical') {
+        this.gameview = gameview
+        this.elems = elems;
+
+        if (style != null || undefined) this.style = style;
+
+        this.style.size.x = gameview.style.size.x;
+        this.style.size.y = gameview.style.size.y;
+    }
+}
+
 export class GuiLayer {
 
     gameview = GameView;
@@ -43,7 +106,7 @@ export class GuiLayer {
 
     constructor(gameview, style = null, elems = [], direction = 'vertical') {
         this.gameview = gameview
-        elems = elems;
+        this.elems = elems;
 
         if (style != null || undefined) this.style = style;
 
@@ -51,6 +114,7 @@ export class GuiLayer {
         this.style.size.y = gameview.style.size.y;
     }
 }
+
 
 export class Container extends GuiObject {
 
@@ -139,6 +203,26 @@ export class Container extends GuiObject {
 
 }
 
+export class Label extends Container {
+
+    constructor(gameview, style, elems = [], direction = 'vertical') {
+        super(gameview, style, elems, direction);
+    }
+
+    render(colldata) {
+        super.render(colldata);
+        let realfont = this.style.fontSize + 'px ' + this.style.fontStyle;
+        let gctx = this.gameview.ctx;
+        gctx.fillStyle = this.style.color;
+        gctx.font = realfont;
+        gctx.fillText(this.style.text,
+            ((this.gameview.style.position.x + this.style.position.x) + this.style.margin.l),
+            ((this.gameview.style.position.y + this.style.position.y) + this.style.margin.t) + (this.style.size.y - this.style.fontSize / 4));
+
+    }
+
+}
+
 export class Button extends Container {
 
 
@@ -163,6 +247,7 @@ export class Button extends Container {
 export class Input extends Container {
 
     submitdata = undefined;
+    is_initial_value = true;
 
     constructor(gameview, style, elems = [], direction = 'vertical') {
         super(gameview, style, elems, direction)
@@ -174,11 +259,7 @@ export class Input extends Container {
         context.addEventHandler(
             'mousedown',
             (e) => {
-                if (this.isInside(e.clientX, e.clientY)) {
-                    this.active = true;
-                } else {
-                    this.active = false;
-                }
+                this.OnMouseDown(e);
             }
         )
         context.addEventHandler(
@@ -229,8 +310,13 @@ export class Input extends Container {
     }
 
     OnMouseDown(e, args) {
-        if (this.isInside(e.clientX, e.cleintY)) {
+        if (this.isInside(e.clientX, e.clientY)) {
+            if (this.is_initial_value) {
+                this.style.text = "";
+            }
             this.active = true;
+        } else {
+            this.active = false;
         }
     }
 

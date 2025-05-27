@@ -1,5 +1,5 @@
 import * as Engine from '../Engine/GameEngine.js';
-import { Button, Container } from '../Engine/Elements.js';
+import { Button, Container, Label } from '../Engine/Elements.js';
 import { randomPiece, pieces, pickpiece } from '../shapes.js';
 
 class Block extends Container {
@@ -112,6 +112,8 @@ export class BaseGameScene extends Engine.Scene {
     FallingPieces = [];
     randomness = { 'l': 1, 'rl': 1, 'long': 1, 's': 1, 'rs': 1, 't': 1, 'block': 1 }
 
+    scorelabel = Label;
+
     constructor(name) {
         super(name);
     }
@@ -137,17 +139,28 @@ export class BaseGameScene extends Engine.Scene {
             }
             gamecontainer.elems.push(horizontalcontainer);
         }
+
+        let rightSide = new Container(this.gameview,null, [], 'vertical');
         
         let buttons = new Container(this.gameview);
         let startbtn = new Button(this.gameview);
         startbtn.style.size = {x: 100 ,y: 100};
         startbtn.style.bgcolor = '#b35';
         startbtn.activestyle.bgcolor =  Engine.MLColor.darken(startbtn.style.bgcolor, 14);
-        
+        this.scorelabel = new Label(this.gameview);
+        this.scorelabel.style.margin = {t: 10,r: 0,b: 0,l: 10};
+        this.scorelabel.style.text = this.score.toString();
+        this.scorelabel.style.color = 'white';
+        this.scorelabel.style.fontSize = 20;
+        this.scorelabel.style.size = {x: 90, y:20};
+
+
         buttons.elems.push(startbtn);
-        
+        rightSide.elems.push(buttons);
+        rightSide.elems.push(this.scorelabel);
+
         maincontainer.elems.push(gamecontainer);
-        maincontainer.elems.push(buttons);
+        maincontainer.elems.push(rightSide);
         maincontainer.style.size = {x: this.gameview.style.size.x, y: this.gameview.style.size.y}
 
         this.guilayer.elems.push(maincontainer);
@@ -164,7 +177,7 @@ export class BaseGameScene extends Engine.Scene {
 
         //Check 
         this.addEventHandler("keydown", this.KeyDown, this)
-
+        this.addEventHandler("keyup", this.KeyUp, this)
 
 
         this.onStart = () => {
@@ -556,16 +569,17 @@ export class BaseGameScene extends Engine.Scene {
                 points += 1000;
                 break;
             case 2:
-                points += 1500;
-                break;
-            case 3:
                 points += 2500;
                 break;
+            case 3:
+                points += 4000;
+                break;
             case 4:
-                points += 4500;
+                points += 5500;
                 break;
         }
         this.score += points;
+        this.scorelabel.style.text = this.score.toString();
         console.log(this.score);
     }
 
